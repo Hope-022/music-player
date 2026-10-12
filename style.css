@@ -1,0 +1,323 @@
+/* ---------- 1. Theme tokens ---------- */
+:root {
+  --bg: #0e0d12;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #c8ea5a;          /* lime */
+  --accent-ink: #14160a;      /* dark text on lime */
+  --text: #f4f3f7;
+  --muted: #9a98a6;
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --font: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+/* ---------- 2. Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- 3. Page background ---------- */
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(214, 70, 160, 0.35), transparent 40%),
+    radial-gradient(circle at 90% 95%, rgba(255, 150, 90, 0.3), transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(130, 90, 230, 0.25), transparent 40%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ---------- 4. Layout ---------- */
+.app {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(280px, 380px);
+  justify-content: center;
+  gap: 24px;
+}
+
+/* ---------- 5. Player card ---------- */
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 28px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.player__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.player__cover {
+  width: min(260px, 70vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.player__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: spin 24s linear infinite;
+  animation-play-state: paused;
+}
+
+/* JavaScript will add this class while music is playing */
+.player__cover.is-playing img {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.player__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.player__artist {
+  margin-top: -10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* ---------- 6. Progress bar ---------- */
+.progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress span {
+  min-width: 38px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#duration {
+  text-align: right;
+}
+
+/* ---------- 7. Sliders (progress + volume) ---------- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  cursor: pointer;
+  /* --fill is set by JavaScript later; it colors the "played" part */
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--fill, 0%),
+    rgba(255, 255, 255, 0.15) var(--fill, 0%)
+  );
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  box-shadow: 0 0 0 4px rgba(200, 234, 90, 0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  box-shadow: 0 0 0 4px rgba(200, 234, 90, 0.2);
+}
+
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* ---------- 8. Control buttons ---------- */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.btn {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn:hover {
+  background: var(--surface-hover);
+}
+
+.btn:active {
+  transform: scale(0.94);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn--play {
+  width: 72px;
+  height: 72px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn--play:hover {
+  background: #d6f270;
+}
+
+/* ---------- 9. Volume ---------- */
+.volume {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+/* ---------- 10. Playlist ---------- */
+.playlist {
+  padding: 24px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.playlist__heading {
+  padding: 0 8px 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.playlist__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.track:hover {
+  background: var(--surface-hover);
+}
+
+.track__cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.track__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.track__title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track__artist {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.track__duration {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The song that is currently selected */
+.track--active {
+  background: rgba(200, 234, 90, 0.12);
+}
+
+.track--active .track__title {
+  color: var(--accent);
+}
+
+/* ---------- 11. Responsive: phones and small tablets ---------- */
+@media (max-width: 800px) {
+  .app {
+    grid-template-columns: minmax(0, 440px);
+  }
+
+  .playlist {
+    max-height: none;
+  }
+}
+
+/* ---------- 12. Respect users who dislike motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .player__cover img {
+    animation: none;
+  }
+}

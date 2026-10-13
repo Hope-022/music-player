@@ -20,6 +20,13 @@ const titleEl = document.getElementById("title");
 const artistEl = document.getElementById("artist");
 const playlistEl = document.getElementById("playlist");
 
+const coverWrapEl = document.querySelector(".player__cover");
+const playBtn = document.getElementById("play");
+const iconPlay = document.getElementById("icon-play");
+const iconPause = document.getElementById("icon-pause");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+
 /* ----------  Functions ---------- */
 function loadSong(index) {
   currentSongIndex = index;
@@ -60,12 +67,62 @@ function highlightActiveTrack() {
   });
 }
 
+function playSong() {
+  audio.play().catch((error) => {
+    if (error.name !== "AbortError") console.error("Playback failed:", error);
+  });
+}
+
+function pauseSong() {
+  audio.pause();
+}
+
+function togglePlay() {
+  if (audio.paused) {
+    playSong();
+  } else {
+    pauseSong();
+  }
+}
+
+function nextSong() {
+  const nextIndex = (currentSongIndex + 1) % songs.length;
+  loadSong(nextIndex);
+  playSong();
+}
+
+function prevSong() {
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+  const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+  loadSong(prevIndex);
+  playSong();
+}
+
+function updatePlayState() {
+  const isPlaying = !audio.paused;
+  iconPlay.hidden = isPlaying;
+  iconPause.hidden = !isPlaying;
+  playBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
+  coverWrapEl.classList.toggle("is-playing", isPlaying);
+}
+
 /* ---------- 5. Event listeners ---------- */
 playlistEl.addEventListener("click", (event) => {
   const row = event.target.closest(".track");
-  if (!row) return; // click landed outside any row
+  if (!row) return;
   loadSong(Number(row.dataset.index));
+  playSong();
 });
+
+playBtn.addEventListener("click", togglePlay);
+nextBtn.addEventListener("click", nextSong);
+prevBtn.addEventListener("click", prevSong);
+
+audio.addEventListener("play", updatePlayState);
+audio.addEventListener("pause", updatePlayState);
 
 /* ---------- 6. Start the app ---------- */
 renderPlaylist();

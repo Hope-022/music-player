@@ -144,6 +144,18 @@ function showDuration() {
   durationEl.textContent = formatTime(audio.duration);
 }
 
+function seek() {
+  if (!audio.duration) return;
+  audio.currentTime = (progressBar.value / 100) * audio.duration;
+  currentTimeEl.textContent = formatTime(audio.currentTime);
+  setFill(progressBar);
+}
+
+function changeVolume() {
+  audio.volume = Number(volumeEl.value);
+  setFill(volumeEl);
+}
+
 /* ---------- 5. Event listeners ---------- */
 playlistEl.addEventListener("click", (event) => {
   const row = event.target.closest(".track");
@@ -162,6 +174,13 @@ audio.addEventListener("pause", updatePlayState);
 audio.addEventListener("timeupdate", updateProgress);
 audio.addEventListener("loadedmetadata", showDuration);
 
+progressBar.addEventListener("input", seek);
+volumeEl.addEventListener("input", changeVolume);
+
 /* ---------- 6. Start the app ---------- */
+renderPlaylist();
+loadSong(0);
+
+changeVolume(); // applies the slider's starting value (0.7) to the audio
 renderPlaylist();
 loadSong(0);

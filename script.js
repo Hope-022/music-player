@@ -1,4 +1,6 @@
-/* ---------- Data ---------- */
+/* ---------- 1. Data ---------- */
+// File names are consistent (assets/audio/<id>.mp3 and assets/images/<id>.jpg),
+// so each song only needs an id, a title and an artist.
 const songs = [
   { id: "amurich-electronic", title: "Amurich Electronic", artist: "Sergey Safikanov" },
   { id: "chill-lofi", title: "Chill Lofi", artist: "Marek Zielinski" },
@@ -10,29 +12,27 @@ const songs = [
   { id: "the-mountain-music", title: "The Mountain", artist: "Dmitrii Kolesnikov" },
 ];
 
-/* ----------State ---------- */
-const audio = new Audio(); 
-let currentSongIndex = 0; 
+/* ---------- 2. State ---------- */
+const audio = new Audio();
+let currentSongIndex = 0;
 
-/* ---------- DOM references ---------- */
+/* ---------- 3. DOM references ---------- */
 const coverEl = document.getElementById("cover");
 const titleEl = document.getElementById("title");
 const artistEl = document.getElementById("artist");
 const playlistEl = document.getElementById("playlist");
-
 const coverWrapEl = document.querySelector(".player__cover");
 const playBtn = document.getElementById("play");
 const iconPlay = document.getElementById("icon-play");
 const iconPause = document.getElementById("icon-pause");
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
-
 const currentTimeEl = document.getElementById("current-time");
 const durationEl = document.getElementById("duration");
 const progressBar = document.getElementById("progress-bar");
 const volumeEl = document.getElementById("volume");
 
-/* ----------  Functions ---------- */
+/* ---------- 4. Functions ---------- */
 function loadSong(index) {
   currentSongIndex = index;
   const song = songs[index];
@@ -42,6 +42,11 @@ function loadSong(index) {
   coverEl.alt = `Cover art for ${song.title}`;
   titleEl.textContent = song.title;
   artistEl.textContent = song.artist;
+
+  currentTimeEl.textContent = "0:00";
+  durationEl.textContent = "0:00";
+  progressBar.value = 0;
+  setFill(progressBar);
 
   highlightActiveTrack();
 }
@@ -65,10 +70,19 @@ function renderPlaylist() {
   });
 }
 
-  currentTimeEl.textContent = "0:00";
-  durationEl.textContent = "0:00";
-  progressBar.value = 0;
-  setFill(progressBar);
+// Reads each song's length in the background and fills in the playlist rows
+function loadPlaylistDurations() {
+  const durationCells = playlistEl.querySelectorAll(".track__duration");
+
+  songs.forEach((song, index) => {
+    const temp = new Audio();
+    temp.preload = "metadata";
+    temp.src = `assets/audio/${song.id}.mp3`;
+    temp.addEventListener("loadedmetadata", () => {
+      durationCells[index].textContent = formatTime(temp.duration);
+    });
+  });
+}
 
 function highlightActiveTrack() {
   const rows = playlistEl.querySelectorAll(".track");
@@ -119,7 +133,6 @@ function updatePlayState() {
   coverWrapEl.classList.toggle("is-playing", isPlaying);
 }
 
-// Turns 135.6 seconds into "2:15"
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return "0:00";
   const mins = Math.floor(seconds / 60);
@@ -127,14 +140,13 @@ function formatTime(seconds) {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-// Paints the lime "filled" part of a slider (uses the --fill variable from the CSS)
 function setFill(slider) {
   const percent = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
   slider.style.setProperty("--fill", `${percent}%`);
 }
 
 function updateProgress() {
-  if (!audio.duration) return; // metadata not loaded yet
+  if (!audio.duration) return;
   progressBar.value = (audio.currentTime / audio.duration) * 100;
   currentTimeEl.textContent = formatTime(audio.currentTime);
   setFill(progressBar);
@@ -156,6 +168,11 @@ function changeVolume() {
   setFill(volumeEl);
 }
 
+function showLoadError() {
+  titleEl.textContent = "Couldn't load this song";
+  artistEl.textContent = "Check the file name in assets/audio";
+}
+
 /* ---------- 5. Event listeners ---------- */
 playlistEl.addEventListener("click", (event) => {
   const row = event.target.closest(".track");
@@ -170,17 +187,16 @@ prevBtn.addEventListener("click", prevSong);
 
 audio.addEventListener("play", updatePlayState);
 audio.addEventListener("pause", updatePlayState);
-
 audio.addEventListener("timeupdate", updateProgress);
 audio.addEventListener("loadedmetadata", showDuration);
+audio.addEventListener("ended", nextSong);
+audio.addEventListener("error", showLoadError);
 
 progressBar.addEventListener("input", seek);
 volumeEl.addEventListener("input", changeVolume);
 
 /* ---------- 6. Start the app ---------- */
+changeVolume();
 renderPlaylist();
-loadSong(0);
-
-changeVolume(); // applies the slider's starting value (0.7) to the audio
-renderPlaylist();
+loadPlaylistDurations();
 loadSong(0);

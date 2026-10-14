@@ -89,7 +89,6 @@ body {
   animation-play-state: paused;
 }
 
-/* JavaScript will add this class while music is playing */
 .player__cover.is-playing img {
   animation-play-state: running;
 }

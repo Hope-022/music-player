@@ -127,8 +127,8 @@ function prevSong() {
 
 function updatePlayState() {
   const isPlaying = !audio.paused;
-  iconPlay.hidden = isPlaying;
-  iconPause.hidden = !isPlaying;
+  iconPlay.toggleAttribute("hidden", isPlaying);
+  iconPause.toggleAttribute("hidden", !isPlaying);
   playBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
   coverWrapEl.classList.toggle("is-playing", isPlaying);
 }

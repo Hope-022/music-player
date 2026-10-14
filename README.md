@@ -4,7 +4,7 @@ A responsive music player built with plain HTML, CSS and JavaScript, with no fra
 
 ![Music Player screenshot](docs\screenshot.png)
 
-**[▶ Live demo](https://Hope-022.github.io/music-player/)**
+**[▶ Live demo](https://hope-022.github.io/music-player/)**
 
 ``` ## Features
 
